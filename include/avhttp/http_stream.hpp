@@ -244,6 +244,24 @@ public:
 	template <typename Handler>
 	void async_open(const url& u, BOOST_ASIO_MOVE_ARG(Handler) handler);
 
+	///使用协程打开一个指定的URL.
+	// @param u 将要打开的URL.
+	// @param handler必须是一个boost::asio::yield_context
+	// @begin example
+	// 	void do_download(boost::asio::yield_context yield)
+	// 	{
+	// 		avhttp::http_stream stream(service);
+	// 
+	// 		boost::system::error_code ec;
+	// 		stream.yield_open("http://avplayer.org/", yield[ec]);
+	// 		if (ec)
+	// 		{
+	// 			std::cout << "Open url failed:" << ec.message() << std::endl;
+	// 			return;
+	// 		}
+	//  }
+	// @end example
+	// @备注: 函数直到成功打开指定url或者发生错误才会返回，但并不会阻塞整个线程
 	template<class Handler>
 	BOOST_ASIO_INITFN_RESULT_TYPE(Handler, void(boost::system::error_code))
 		yield_open(const url& u, BOOST_ASIO_MOVE_ARG(Handler) handler);
@@ -314,6 +332,41 @@ public:
 	template <typename MutableBufferSequence, typename Handler>
 	void async_read_some(const MutableBufferSequence& buffers, BOOST_ASIO_MOVE_ARG(Handler) handler);
 
+	///从这个http_stream异步读取一些数据.
+	// @param buffers一个或多个用于读取数据的缓冲区, 这个类型必须满足MutableBufferSequence,
+	//  MutableBufferSequence的定义在boost.asio文档中.
+	// @param handler必须是一个boost::asio::yield_context
+	// @函数返回读取到的数据大小.
+	// @begin example
+	// 	void do_download(boost::asio::yield_context yield)
+	// 	{
+	//		......
+	// 		for (;;)
+	// 		{
+	// 			boost::array<char, 1024> buffer;
+	// 			std::size_t read_size = 
+	//				stream.yield_read_some(boost::asio::buffer(buffer, buffer.size()), yield[ec]);
+	// 
+	// 			std::cout.write(buffer.data(), read_size);
+	// 			if (ec)
+	// 			{
+	// 				if (ec == boost::asio::error::eof)
+	// 				{
+	// 					std::cout << "\n\nover!" << std::endl;
+	// 				}
+	// 				else
+	// 				{
+	// 					std::cout << "Error occured while reading:" << ec.message() << std::endl;
+	// 				}
+	// 
+	// 				return;
+	// 			}
+	// 		}
+	// 	}
+	// @end example
+	// 关于示例中的boost::asio::buffer用法可以参考boost中的文档. 它可以接受一个
+	// boost.array或std.vector作为数据容器.
+	// @备注: 函数直到读取到一定数据才会返回，但并不会阻塞整个线程
 	template<typename MutableBufferSequence, typename Handler>
 	BOOST_ASIO_INITFN_RESULT_TYPE(Handler, void(boost::system::error_code, std::size_t))
 		yield_read_some(const MutableBufferSequence& buffers, BOOST_ASIO_MOVE_ARG(Handler) handler);
@@ -437,6 +490,20 @@ public:
 	template <typename Handler>
 	void async_request(const request_opts& opt, BOOST_ASIO_MOVE_ARG(Handler) handler);
 
+	///向http服务器发起一个请求.
+	// @param opt指定的http请求选项.
+	// @param handler 必须是一个boost::asio::yield_context
+	// @begin example
+	// 	void do_download(boost::asio::yield_context yield)
+	// 	{
+	//  ...
+	//  avhttp::http_stream h(io_service);
+	//  ...
+	//  request_opts opt;
+	//  opt.insert("cookie", "name=admin;passwd=#@aN@2*242;");
+	//	boost::system::error_code ec;
+	//  h.yield_request(opt, yield[ec]);
+	// @end example
 	template<class Handler>
 	BOOST_ASIO_INITFN_RESULT_TYPE(Handler, void(boost::system::error_code))
 		yield_request(const request_opts& opt, BOOST_ASIO_MOVE_ARG(Handler) handler);
@@ -475,6 +542,17 @@ public:
 	template <typename Handler>
 	void async_receive_header(BOOST_ASIO_MOVE_ARG(Handler) handler);
 
+	///接受一个http头信息.
+	// @param handler 必须是一个boost::asio::yield_context
+	// @begin example
+	// 	void do_download(boost::asio::yield_context yield)
+	// 	{
+	//  ...
+	//  avhttp::http_stream h(io_service);
+	//  ...
+	//	boost::system::error_code ec;
+	//  h.yield_recvive_header(yield[ec]);
+	// @end example
 	template<class Handler>
 	BOOST_ASIO_INITFN_RESULT_TYPE(Handler, void(boost::system::error_code))
 		yield_receive_header(BOOST_ASIO_MOVE_ARG(Handler) handler);
