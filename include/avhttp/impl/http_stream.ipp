@@ -520,6 +520,19 @@ void http_stream::async_open(const url& u, BOOST_ASIO_MOVE_ARG(Handler) handler)
 	);
 }
 
+template<class Handler>
+BOOST_ASIO_INITFN_RESULT_TYPE(Handler, void(boost::system::error_code))
+http_stream::yield_open(const url& u, BOOST_ASIO_MOVE_ARG(Handler) handler)
+{
+	boost::asio::detail::async_result_init<
+		Handler, void(boost::system::error_code)> init(
+		BOOST_ASIO_MOVE_CAST(Handler)(handler));
+
+	async_open(u, init.handler);
+
+	return init.result.get();
+}
+
 template <typename MutableBufferSequence>
 std::size_t http_stream::read_some(const MutableBufferSequence& buffers)
 {
@@ -999,6 +1012,19 @@ void http_stream::async_read_some(const MutableBufferSequence& buffers, BOOST_AS
 	}
 }
 
+template<typename MutableBufferSequence, typename Handler>
+BOOST_ASIO_INITFN_RESULT_TYPE(Handler, void(boost::system::error_code, std::size_t))
+http_stream::yield_read_some(const MutableBufferSequence& buffers, BOOST_ASIO_MOVE_ARG(Handler) handler)
+{
+	boost::asio::detail::async_result_init<
+		Handler, void(boost::system::error_code, std::size_t)> init(
+		BOOST_ASIO_MOVE_CAST(Handler)(handler));
+
+	async_read_some(buffers, init.handler);
+
+	return init.result.get();
+}
+
 template <typename ConstBufferSequence>
 std::size_t http_stream::write_some(const ConstBufferSequence& buffers)
 {
@@ -1428,6 +1454,19 @@ void http_stream::async_request(const request_opts& opt, BOOST_ASIO_MOVE_ARG(Han
 	);
 }
 
+template<class Handler>
+BOOST_ASIO_INITFN_RESULT_TYPE(Handler, void(boost::system::error_code))
+http_stream::yield_request(const request_opts& opt, BOOST_ASIO_MOVE_ARG(Handler) handler)
+{
+	boost::asio::detail::async_result_init<
+		Handler, void(boost::system::error_code)> init(
+		BOOST_ASIO_MOVE_CAST(Handler)(handler));
+
+	async_request(opt, init.handler);
+
+	return init.result.get();
+}
+
 void http_stream::receive_header()
 {
 	boost::system::error_code ec;
@@ -1637,6 +1676,19 @@ void http_stream::async_receive_header(BOOST_ASIO_MOVE_ARG(Handler) handler)
 			boost::asio::placeholders::error
 		)
 	);
+}
+
+template<class Handler>
+BOOST_ASIO_INITFN_RESULT_TYPE(Handler, void(boost::system::error_code))
+http_stream::yield_receive_header(BOOST_ASIO_MOVE_ARG(Handler) handler)
+{
+	boost::asio::detail::async_result_init<
+		Handler, void(boost::system::error_code)> init(
+		BOOST_ASIO_MOVE_CAST(Handler)(handler));
+
+	async_receive_header(init.handler);
+
+	return init.result.get();
 }
 
 void http_stream::clear()
