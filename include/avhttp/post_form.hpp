@@ -41,6 +41,22 @@ namespace avhttp {
 		opts.insert(http_options::request_method, "POST");
 		stream.request_options(opts);
 	}
+	
+	//Add By Krisbin
+	AVHTTP_DECL void post_form(http_stream& stream, const std::string& key_values)
+	{
+		const std::string& body = key_values;
+		request_opts opts = stream.request_options();
+		opts.remove(http_options::request_method);
+		opts.remove(http_options::request_body);
+		opts.remove(http_options::content_type);
+		opts.remove(http_options::content_length);
+		opts.insert(http_options::content_length, (boost::format("%1%") % body.size()).str());
+		opts.insert(http_options::content_type, "application/x-www-form-urlencoded");
+		opts.insert(http_options::request_body, body);
+		opts.insert(http_options::request_method, "POST");
+		stream.request_options(opts);
+	}
 }
 
 #endif // AVHTTP_POST_FORM_HPP
