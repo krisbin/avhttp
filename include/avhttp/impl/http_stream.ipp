@@ -341,6 +341,13 @@ void http_stream::open(const url& u, boost::system::error_code& ec)
 		m_sock.close(ec);
 		if (++m_redirects <= m_max_redirects)
 		{
+			//redirects都是GET，这里清除下POST标志和数据		
+			m_request_opts_priv.remove(http_options::request_body);
+			m_request_opts_priv.remove(http_options::content_type);
+			m_request_opts_priv.remove(http_options::content_length);
+			m_request_opts_priv.remove(http_options::request_method);
+			m_request_opts_priv.insert(http_options::request_method, "GET");
+			
 			open(m_location, ec);
 			return;
 		}
